@@ -3,9 +3,10 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Notes App</title>
+  <title>Note App</title>
   <link rel="stylesheet" href="style.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/favIcon.png" type="image/x-icon">
   <!-- Links For Icons -->
   <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
 </head>
@@ -21,6 +22,7 @@
         <form action="#">
           <div class="row title">
             <label>Title</label>
+            <span class="alert">You must at least set a title for your note</span>
             <input type="text" spellcheck="false" />
           </div>
           <div class="row description">
@@ -39,30 +41,6 @@
       <p>Add New Note</p>
     </div>
 
-    <!-- Start Show Notes -->
-
-    <!-- <li class="note">
-      <div class="details">
-        <p>Test Title</p>
-        <span>Test Description</span>
-      </div>
-      <div class="bottom-content">
-        <span>April 12, 2022</span>
-        <div class="settings">
-          <i class="uil uil-ellipsis-h"></i>
-          <ul class="menu">
-            <li>
-              <i class="uil uil-pen"></i>Edit
-            </li>
-            <li>
-              <i class="uil uil-trash"></i>Delete
-            </li>
-          </ul>
-        </div>
-      </div>
-    </li> -->
-
-    <!-- Finish Show Notes -->
   </div>
 
   <script src="script.js"></script>
