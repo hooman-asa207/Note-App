@@ -75,7 +75,7 @@ header,
 
 .note .details {
   max-height: 165px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .note .details::-webkit-scrollbar,
