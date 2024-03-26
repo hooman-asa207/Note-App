@@ -112,7 +112,7 @@ function generateNote(notesArray) {
 }
 
 function getLocalStorage() {
-  notesArray = localStorageTodos = JSON.parse(localStorage.getItem('notes')) || []
+  notesArray = JSON.parse(localStorage.getItem('notes')) || []
   generateNote(notesArray)
 }
 
@@ -124,14 +124,13 @@ function openSetting(el) {
 }
 
 function Delete(id) {
-  let notes = localStorageTodos = JSON.parse(localStorage.getItem('notes'))
+  let notes = JSON.parse(localStorage.getItem('notes'))
   notesArray = notes
 
-  let mainNote = notesArray.findIndex(note => { return note.id === id })
-
-  notesArray.splice(mainNote, 1)
-  setLocalStorage(notesArray)
-  generateNote(notesArray)
+  let mainNote = notesArray.find(note => { return note.id === id })
+  _.pull(notesArray, mainNote)
+   setLocalStorage(notesArray)
+   generateNote(notesArray)
 }
 
 function update(id) {
