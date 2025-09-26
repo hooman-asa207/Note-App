@@ -1,150 +1,132 @@
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const days = ["Sunday", "Monday", "Tuesday", 'Wednesday', 'Thursday', 'Friday', "Saturday"]
+const weekday = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-const $ = document
-const addNoteBox = $.querySelector(".add-box")
-const noteWrapper = $.querySelector('.wrapper')
-const popUpBox = $.querySelector('.popup-box')
-const addOrUpdateNote = popUpBox.querySelector("button")
-const titleInput = popUpBox.querySelector(".title input")
-const desInput = popUpBox.querySelector(".description textarea")
-const inputAlert = $.querySelector(".alert")
+const notesWrapper = document.querySelector(".wrapper")
+const addNewNoteBox = document.querySelector(".add-box")
+const popupBox = document.querySelector(".popup-box")
+const descriptionInput = document.querySelector(".description textarea")
+const titleInput = document.querySelector(".title input")
+const addOrUpdateNoteBtn = document.querySelector(".popup .content form button")
+const noteStatus = document.querySelector(".note-status")
 
 let notesArray = []
-let noteTitle, noteDes
+let isUpdating = false
+let mainIndexForUpdate
 
-let myTime = new Date()
-let year = myTime.getFullYear()
-let dayNum = myTime.getDay()
-let dayOfMounth = myTime.getDate()
-let monthsNum = myTime.getMonth()
+let Time = new Date()
+let dayIndex = Time.getDay()
+let monthsIndex = Time.getMonth()
+let date = Time.getDate()
+let year = Time.getFullYear()
 
-let isUpdate = false
 
-let mainNoteidForUpdate
+function setNewNote() {
+  if (!isUpdating) {
 
-function openPopUp() {
-  inputAlert.classList.remove("show")
-  popUpBox.classList.add("show")
-  popUpBox.querySelector('.uil-times').addEventListener("click", () => {
-    popUpBox.classList.remove("show")
-    isUpdate = false
-  })
-
-  if (isUpdate === false) {
-    popUpBox.querySelector(".content header p").innerHTML = 'Add new note'
-    popUpBox.querySelector(".content form button").innerHTML = 'Add new note'
-    emptyInputs()
-  } else {
-    popUpBox.querySelector(".content header p").innerHTML = 'Update note'
-    popUpBox.querySelector(".content form button").innerHTML = 'Update note'
-
-    let mainNoteId = notesArray.findIndex(note => note.id == mainNoteidForUpdate)
-    titleInput.value = notesArray[mainNoteId].title
-    desInput.value = notesArray[mainNoteId].description
-  }
-}
-
-function submitNote() {
-  if (titleInput.value !== '') {
-    inputAlert.classList.remove("show")
-
-    if (isUpdate === false) {
+    if (titleInput.value === "" && descriptionInput.value === "") {
+      alert("Please fill the inputs")
+    } else {
       let newNote = {
-        id: notesArray.length + 1,
         title: titleInput.value,
-        description: desInput.value
+        des: descriptionInput.value,
+        date: `${months[monthsIndex]} ${date}, ${year}, (${weekday[dayIndex]})`
       }
       notesArray.push(newNote)
-      setLocalStorage(notesArray)
-      generateNote(notesArray)
-
-    } else {
-
-      let mainNoteId = notesArray.findIndex(note => note.id == mainNoteidForUpdate)
-      notesArray[mainNoteId].title = titleInput.value
-      notesArray[mainNoteId].description = desInput.value
-
-      setLocalStorage(notesArray)
-      generateNote(notesArray)
-
-      isUpdate = false
+      setLocal(notesArray)
+      closePopUp()
+      generateNote()
     }
-
-    popUpBox.classList.remove("show")
-    emptyInputs()
-
   } else {
-    inputAlert.classList.add("show")
+    notesArray[mainIndexForUpdate].title = titleInput.value
+    notesArray[mainIndexForUpdate].des = descriptionInput.value
+    isUpdating = false
+    setLocal(notesArray)
+    closePopUp()
+    generateNote()
   }
 }
 
-function setLocalStorage(notesArray) {
+function generateNote() {
+  document.querySelectorAll("li").forEach(item => item.remove())
+
+  notesArray.forEach((item, index) => {
+    notesWrapper.insertAdjacentHTML('beforeend', `
+            <li class="note">
+        <div class="details">
+          <p>${item.title}</p>
+          <span>${item.des}</span>
+        </div>
+        <div class="bottom-content">
+          <span>${item.date}</span>
+          <div class="settings" onclick="openMenu(this)">
+            <i class="uil uil-ellipsis-h"></i>
+            <ul class="menu">
+              <li onclick="editNote(${index})">
+                <i class="uil uil-pen"></i>Edit
+              </li>
+              <li onclick="deleteNote(${index})">
+                <i class="uil uil-trash"></i>Delete
+              </li>
+            </ul>
+          </div>
+        </div>
+      </li>
+            `)
+  })
+}
+
+function setLocal(notesArray) {
   localStorage.setItem('notes', JSON.stringify(notesArray))
 }
 
-function generateNote(notesArray) {
-  noteWrapper.querySelectorAll('li').forEach(li => li.remove())
-
-  notesArray.forEach(note => {
-    noteWrapper.insertAdjacentHTML("beforeend",
-      `<li class="note">
-      <div class="details">
-        <p>${note.title}</p>
-        <span>${note.description}</span>
-      </div>
-      <div class="bottom-content">
-        <span>${months[monthsNum]} ${dayOfMounth}, ${year} (${days[dayNum]})</span>
-        <div class="settings">
-          <i class="uil uil-ellipsis-h" onclick="openSetting(this)"></i>
-          <ul class="menu">
-            <li onclick="update(${note.id})">
-              <i class="uil uil-pen"></i>Edit
-            </li>
-            <li onclick="Delete(${note.id})">
-              <i class="uil uil-trash"></i>Delete
-            </li>
-          </ul>
-        </div>
-      </div>
-    </li>`)
-  })
-}
-
-function getLocalStorage() {
-  notesArray = JSON.parse(localStorage.getItem('notes')) || []
-  generateNote(notesArray)
-}
-
-let menuElem
-function openSetting(el) {
-  menuElem = el
-  menuElem.parentNode.classList.toggle('show')
-  addNoteBox.addEventListener("click", () => menuElem.parentNode.classList.remove('show'))
-}
-
-function Delete(id) {
-  let notes = JSON.parse(localStorage.getItem('notes'))
-  notesArray = notes
-
-  let mainNote = notesArray.find(note => { return note.id === id })
-  _.pull(notesArray, mainNote)
-   setLocalStorage(notesArray)
-   generateNote(notesArray)
-}
-
-function update(id) {
-  menuElem.parentNode.classList.remove('show')
-  mainNoteidForUpdate = id
-  isUpdate = true
+function editNote(index) {
+  isUpdating = true
   openPopUp()
+  let mainNote = notesArray[index]
+  titleInput.value = mainNote.title
+  descriptionInput.value = mainNote.des
+  mainIndexForUpdate = index
 }
 
-function emptyInputs() {
-  titleInput.value = ''
-  desInput.value = ''
+function deleteNote(index) {
+  let notes = JSON.parse(localStorage.getItem("notes"))
+  notes.splice(index, 1)
+  notesArray = notes
+  localStorage.setItem("notes", JSON.stringify(notes))
+  generateNote()
 }
 
-addNoteBox.addEventListener("click", openPopUp)
-addOrUpdateNote.addEventListener("click", submitNote)
-window.addEventListener('load', getLocalStorage)
+function openPopUp() {
+  if (!isUpdating) {
+    popupBox.classList.add("show")
+    noteStatus.innerHTML = "New Note"
+    addOrUpdateNoteBtn.innerHTML = "Add Note"
+  } else {
+    popupBox.classList.add("show")
+    noteStatus.innerHTML = "Edit Note"
+    addOrUpdateNoteBtn.innerHTML = "Update Note"
+  }
+}
+
+function closePopUp() {
+  popupBox.classList.remove("show")
+  titleInput.value = ""
+  descriptionInput.value = ""
+  isUpdating = false
+}
+
+function openMenu(el) {
+  el.classList.add("show")
+  document.addEventListener("click", (e) => {
+    if (!el.contains(e.target)) {
+      el.classList.remove("show");
+    }
+  });
+}
+
+addNewNoteBox.addEventListener("click", openPopUp)
+window.addEventListener("load", () => {
+  let notes = JSON.parse(localStorage.getItem("notes")) || [];
+  notesArray = notes
+  generateNote()
+})
